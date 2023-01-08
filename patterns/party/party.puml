@@ -1,5 +1,15 @@
 @startuml
 
+class Party <<archetype>> {
+{field} <<o>> description: str
+{field} name: str
+{method} identifier(): PartyIdentifier
+{method} registered_identifiers(): List[PartyIdentifier]
+{method} addresses(): List[Addresses]
+{method} preferences(): List[Preference]
+}
+
+
 class UniqueIdentifier <<archetype>>
 class PartyIdentifier <<archetype>>
 class PartySignature <<archetype>>
@@ -10,33 +20,49 @@ UniqueIdentifier <|-down- PartyIdentifier
 PartyIdentifier "1" <-* "1" PartySignature
 PartySignature "1" *--> "1" PartyAuthentication
 
-class Party <<archetype>> {
-{field} <<o>> description: str
-}
 class Address <<archetype>>
-Party "1" *-right-> "0..*" PartyAuthentication : <<o>>
-Party "1..*" -right- "0..*" Address
 
-class Preface <<archetype>>
+Party "1" *-up-> "1" PartyIdentifier
+Party "1" *-up-> "0..*" PartyAuthentication : <<o>>
+
+Address -[hidden]up- PartyAuthentication
+
+
+together {
+class Preference <<archetype>>
+package {
 class PartyRelationshipArchetypePattern <<archetype>>
+}
 class RegisteredIdentifier <<archetype>>
+}
 
-Party "1" *-left-> "0..*" Preface : <<o>>
+Preference -[hidden]down- PartyRelationshipArchetypePattern
+PartyRelationshipArchetypePattern -[hidden]down- RegisteredIdentifier
+
+
+Party "1..*" -right- "0..*" Address
+Party "1" *-left-> "0..*" Preference : <<o>>
 Party .left.> PartyRelationshipArchetypePattern
 Party <.left. PartyRelationshipArchetypePattern
-Party "1" *-left-> "0..*" RegisteredIdentifier : <<o>>
+RegisteredIdentifier "1" *-up-> "0..*" Party : <<o>>
 
+Preference -[hidden]down- PartyRelationshipArchetypePattern
+
+together {
 class Organization <<archetype>>
 class OrganizationName <<archetype>>
-Organization "1" *-down-> "0..*" OrganizationName : otherOrganizationNames
-Organization "1" *-down-> "1" OrganizationName : organizationNames
+}
+Organization "1" *-down-> "1" OrganizationName
+Organization "1" *-down-> "0..*" OrganizationName : <<o>> otherOrganizationNames
 
 Party <|-down- Organization
 
+together {
 class Person <<archetype>>
 class PersonName <<archetype>>
-Person "1" *-down-> "0..*" PersonName : otherPersonNames
-Person "1" *-down-> "1" PersonName : PersonNames
+}
+Person "1" *-down-> "1" PersonName
+Person "1" *-down-> "0..*" PersonName : <<o>> otherPersonNames
 
 Party <|-down- Person
 
