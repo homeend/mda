@@ -1,0 +1,43 @@
+@startuml
+
+class UniqueIdentifier <<archetype>>
+class PartyIdentifier <<archetype>>
+class PartySignature <<archetype>>
+class PartyAuthentication <<archetype>>
+
+UniqueIdentifier <|-down- PartyIdentifier
+
+PartyIdentifier "1" <-* "1" PartySignature
+PartySignature "1" *--> "1" PartyAuthentication
+
+class Party <<archetype>> {
+{field} <<o>> description: str
+}
+class Address <<archetype>>
+Party "1" *-right-> "0..*" PartyAuthentication : <<o>>
+Party "1..*" -right- "0..*" Address
+
+class Preface <<archetype>>
+class PartyRelationshipArchetypePattern <<archetype>>
+class RegisteredIdentifier <<archetype>>
+
+Party "1" *-left-> "0..*" Preface : <<o>>
+Party .left.> PartyRelationshipArchetypePattern
+Party <.left. PartyRelationshipArchetypePattern
+Party "1" *-left-> "0..*" RegisteredIdentifier : <<o>>
+
+class Organization <<archetype>>
+class OrganizationName <<archetype>>
+Organization "1" *-down-> "0..*" OrganizationName : otherOrganizationNames
+Organization "1" *-down-> "1" OrganizationName : organizationNames
+
+Party <|-down- Organization
+
+class Person <<archetype>>
+class PersonName <<archetype>>
+Person "1" *-down-> "0..*" PersonName : otherPersonNames
+Person "1" *-down-> "1" PersonName : PersonNames
+
+Party <|-down- Person
+
+@enduml
