@@ -4,28 +4,60 @@ class Party <<archetype>> {
 {field} <<o>> description: str
 {field} name: str
 {method} identifier(): PartyIdentifier
-{method} registered_identifiers(): List[PartyIdentifier]
+{method} registered_identifiers(): List[RegisteredIdentifier]
 {method} addresses(): List[Addresses]
+{method} roles(): List[PartyRole]
 {method} preferences(): List[Preference]
 }
 
 
-class UniqueIdentifier <<archetype>>
-class PartyIdentifier <<archetype>>
-class PartySignature <<archetype>>
-class PartyAuthentication <<archetype>>
+class UniqueIdentifier <<archetype>>{
+    get(): str
+}
+
+class PartyIdentifier <<archetype>>{
+    identifier: str
+    get(): str
+}
+class PartySignature <<archetype>>{
+when: Datetime
+<<o>> reason: str
+identifier(): PartyIdentifier
+authentication(): PartyAuthentication
+}
+class PartyAuthentication <<archetype>>{
+}
+note right of PartyAuthentication
+It may be:
+* user ID and password combination
+* in-house security tokens
+* secure digital certificate - VeriSign (www.verisign.com) or Thawte (www.thawte.com)
+end note
 
 UniqueIdentifier <|-down- PartyIdentifier
 
 PartyIdentifier "1" <-* "1" PartySignature
 PartySignature "1" *--> "1" PartyAuthentication
 
-class Address <<archetype>>
+Party "1..*" -right- "0..*" Address: \t\t
+
+class Address <<archetype>> {
+valid_from: Datetime
+valid_to: Datetime
+address(): str
+}
+
+'(Party, Address) .. AddressProperties
+'
+'class AddressProperties <<archetype>> {
+'use: String[1..*]
+'}
+
 
 Party "1" *-up-> "1" PartyIdentifier
 Party "1" *-up-> "0..*" PartyAuthentication : <<o>>
 
-Address -[hidden]up- PartyAuthentication
+'Address -[hidden]up- PartyAuthentication
 
 
 together {
@@ -33,14 +65,23 @@ class Preference <<archetype>>
 package {
 class PartyRelationshipArchetypePattern <<archetype>>
 }
-class RegisteredIdentifier <<archetype>>
+class RegisteredIdentifier <<archetype>>{
+identifier: str
+<<o>> type: str
+valid_from: Datetime
+valid_to: Datetime
+registration_authority: str
 }
+note left of RegisteredIdentifier::type
+  e.g., VATRegistrationNumber
+end note
+}
+
 
 Preference -[hidden]down- PartyRelationshipArchetypePattern
 PartyRelationshipArchetypePattern -[hidden]down- RegisteredIdentifier
 
 
-Party "1..*" -right- "0..*" Address
 Party "1" *-left-> "0..*" Preference : <<o>>
 Party .left.> PartyRelationshipArchetypePattern
 Party <.left. PartyRelationshipArchetypePattern

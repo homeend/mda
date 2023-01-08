@@ -1,0 +1,86 @@
+@startuml
+
+
+
+class Party <<archetype>> {
+{field} <<o>> description: str
+{field} name: str
+{method} identifier(): PartyIdentifier
+{method} registered_identifiers(): List[RegisteredIdentifier]
+{method} addresses(): List[Addresses]
+{method} roles(): List[PartyRole]
+{method} preferences(): List[Preference]
+}
+
+
+
+Party "1..*" -down- "0..*" Address : \t\t\t\t\t
+
+class Address <<archetype>> {
+valid_from: Datetime
+valid_to: Datetime
+address(): str
+}
+
+(Party, Address) ... AddressProperties
+
+class AddressProperties <<archetype>> {
+use: String[1..*]
+}
+
+
+
+
+class Address <<archetype>> {
+valid_from: Datetime
+valid_to: Datetime
+address(): str
+}
+
+class WebPageAddress <<archetype>>{
+url: str
+}
+class EmailAddress <<archetype>>{
+email_address: str
+}
+class TelecomAddress <<archetype>>{
+country_code: str
+international_dialing_prefix: str
+number: str
+extension: str
+physical_type: str
+}
+
+class GeographicalAddress <<archetype>>{
+address_lines: List[str]
+city: str
+region_or_state: str
+zip_or_postal_code: str
+country(): Local
+}
+
+class Locale <<archetype>>{
+identifier: str
+name: str
+<<o>> description: str
+}
+
+class ISOCountryCode <<archetype>>{
+short_name(): str
+code(): str
+}
+
+Address <|-- WebPageAddress
+Address <|-- EmailAddress
+Address <|-- TelecomAddress
+Address <|-- GeographicalAddress
+TelecomAddress "0..*" - "0..*"  GeographicalAddress : \t\t\t
+GeographicalAddress "0..*" o--> "1" Locale: country
+Locale <|-- ISOCountryCode
+
+note left of ISOCountryCode
+short_name(): returns the name attribute inherited from Local
+code(): returns the identifier attribute inherited from Local
+end note
+
+@enduml
