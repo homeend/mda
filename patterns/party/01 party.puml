@@ -4,10 +4,10 @@ class Party <<archetype>> {
 {field} <<o>> description: str
 {field} name: str
 {method} identifier(): PartyIdentifier
-{method} registered_identifiers(): List[RegisteredIdentifier]
-{method} addresses(): List[Addresses]
-{method} roles(): List[PartyRole]
-{method} preferences(): List[Preference]
+{method} registered_identifiers(): RegisteredIdentifier[]
+{method} addresses(): Address[]
+{method} roles(): PartyRole[]
+{method} preferences(): PreferenceList[]
 }
 
 
@@ -73,7 +73,9 @@ valid_to: Datetime
 registration_authority: str
 }
 note left of RegisteredIdentifier::type
-  e.g., VATRegistrationNumber
+  e.g.
+  for Company: VATRegistrationNumber
+  for Person: Passport number, Social security number, Identity card number
 end note
 }
 

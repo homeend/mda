@@ -1,0 +1,64 @@
+@startuml
+left to right direction
+skinparam linetype polyline
+'skinparam linetype ortho
+
+class PartyIdentifier <<archetype>>
+class RegisteredIdentifier <<archetype>>
+
+together {
+class Party <<archetype>>
+class Person {}
+}
+
+Party "1" *-right-> "1" PartyIdentifier: \t\t
+Party "0..*" *-up-> "1" RegisteredIdentifier: \t\t
+
+
+class Person {
+<<o>> date_of_birth: Datetime
+person_name(): PersonName
+<<o>> other_person_names(): PersonName[]
+name(): str
+<<o>> ethnicity(): Ethnicity
+gender(): ISOGender
+<<o>> body_metrics(): BodyMetrics
+}
+
+class Ethnicity {
+name: str
+description: str
+}
+class BodyMetrics {}
+class ISOGender {
+MALE
+FEMALE
+OTHER
+NOT_KNOWN
+NOT_SPECIFIED
+}
+
+Person -right-|> Party
+
+Person "0..*" o--> "0..*" Ethnicity: <<o>>
+Person "0..*" <--* "1" BodyMetrics : <<o>>
+Person "1" <--* "1" ISOGender
+
+Person "1" *--l-> "1" PersonName: \t\t
+Person "1" *--l-> "0..*" PersonName: <<o>> other_person_names
+
+class PersonName {
+<<o>> prefix: str[0..*]
+<<o>> given_name: str[0..1]
+<<o>> middle_name: str[0..*]
+family_name: str
+<<o>> preferred_name: str[0..1]
+<<o>> suffix: str[0..*]
+<<o>> usage: str[0..*]
+<<o>> valid_from: Datetime
+<<o>> valid_to: Datetime
+}
+
+
+
+@enduml

@@ -6,10 +6,10 @@ class Party <<archetype>> {
 {field} <<o>> description: str
 {field} name: str
 {method} identifier(): PartyIdentifier
-{method} registered_identifiers(): List[RegisteredIdentifier]
-{method} addresses(): List[Addresses]
-{method} roles(): List[PartyRole]
-{method} preferences(): List[Preference]
+{method} registered_identifiers(): RegisteredIdentifier[]
+{method} addresses(): Address[]
+{method} roles(): PartyRole[]
+{method} preferences(): Preference[]
 }
 
 
@@ -25,17 +25,13 @@ address(): str
 (Party, Address) ... AddressProperties
 
 class AddressProperties <<archetype>> {
-use: String[1..*]
+usage: str[1..*]
 }
+note right
+* This object should at least specify the use of the Address (i.e., limit the context in which the Address is applicable: business, home, out-of-hours contact, emergency contact, and so on).
+* You can also employ use to identify whether an Address is a preferred address for the Party.
+end note
 
-
-
-
-class Address <<archetype>> {
-valid_from: Datetime
-valid_to: Datetime
-address(): str
-}
 
 class WebPageAddress <<archetype>>{
 url: str
@@ -47,12 +43,18 @@ class TelecomAddress <<archetype>>{
 country_code: str
 international_dialing_prefix: str
 number: str
-extension: str
-physical_type: str
+type: str
 }
 
+note left of TelecomAddress::type
+* phone
+* fax
+* mobile
+* pager
+end note
+
 class GeographicalAddress <<archetype>>{
-address_lines: List[str]
+address_line: str[]
 city: str
 region_or_state: str
 zip_or_postal_code: str
@@ -66,9 +68,18 @@ name: str
 }
 
 class ISOCountryCode <<archetype>>{
+alphabetic_three_letter_code: str
+numeric_code: str
+official_name: str
+
 short_name(): str
-code(): str
+two_letter_code(): str
 }
+
+note left of ISOCountryCode
+short_name(): returns the name attribute inherited from Local
+two_letter_code(): returns the identifier attribute inherited from Local
+end note
 
 Address <|-- WebPageAddress
 Address <|-- EmailAddress
@@ -77,10 +88,5 @@ Address <|-- GeographicalAddress
 TelecomAddress "0..*" - "0..*"  GeographicalAddress : \t\t\t
 GeographicalAddress "0..*" o--> "1" Locale: country
 Locale <|-- ISOCountryCode
-
-note left of ISOCountryCode
-short_name(): returns the name attribute inherited from Local
-code(): returns the identifier attribute inherited from Local
-end note
 
 @enduml
